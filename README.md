@@ -1,21 +1,66 @@
+# Network File System
+
+This project implements a distributed file system that allows multiple clients to interact with storage servers through a naming server. It supports operations such as file creation, deletion, copying, reading, and writing, while ensuring synchronization and backup capabilities.
+
+## Features Implemented
+
+### Core Features
+1. **File and Directory Operations**:
+   - Create, delete, copy, read, and write files and directories.
+   - Support for both synchronous and asynchronous writes.
+
+2. **Backup Mechanism**:
+   - Automatic backup of files to two additional storage servers for redundancy.
+   - Backup paths are managed dynamically.
+
+3. **Path Management**:
+   - List all accessible paths from the root directory.
+   - Trie-based structure for efficient path management.
+
+4. **Client-Server Communication**:
+   - Clients communicate with the naming server to locate storage servers.
+   - Commands are sent using TCP sockets.
+
+5. **Error Handling**:
+   - Handles invalid paths, unavailable servers, and timeout scenarios.
+   - Provides meaningful error messages to clients.
+
+6. **Concurrency**:
+   - Multi-threaded implementation for handling multiple client requests simultaneously.
+   - Mutex locks and condition variables for synchronization.
+
+7. **Caching**:
+   - Caching mechanism for frequently accessed paths to improve performance.
+
+8. **Health Monitoring**:
+   - Periodic health checks for storage servers to ensure availability.
+
 ## Assumptions
 
-### File/Dir that is being copied i.e., src should not have any name conflicts with the existing destination files/Dir.
+1. **File/Directory Conflicts**:
+   - The source file/directory being copied should not have name conflicts with existing destination files/directories.
 
-### List all accesible paths functions prints all paths from the assumed root Directory. 
+2. **Accessible Paths**:
+   - The `LIST_ALL_ACCESSIBLE_PATHS` function prints all paths from the assumed root directory.
 
-### Write format - WRITE PATH DATA ASYN_FlAG ->If flag is 1 forced write happens(Synchrouns) if it is 0 our SS decides if it has to be written Synchronously or Asynchronusly.Our Threshold for Asynchronous Write is 1MB of data.
+3. **Write Format**:
+   - `WRITE PATH DATA ASYN_FLAG`: If the flag is `1`, a forced synchronous write happens. If it is `0`, the storage server decides whether to write synchronously or asynchronously. The threshold for asynchronous writes is 1MB of data.
 
-### Our Copy src dest only works of when both are either Directoris or Files.
+4. **Copy Operation**:
+   - Works only when both source and destination are either directories or files.
+   - Copy will not work if a client is writing to the file simultaneously.
 
-### All ports in Storage Server for Clients are unique.
+5. **Unique Ports**:
+   - All ports in the storage server for clients are unique.
 
-### Copy will work on files if no client is Writing from the file at the same time.We have not handled cases where copy and write on a file are happening simultaneously. 
+6. **Streaming Files**:
+   - Streaming files (e.g., music files) are not backed up.
 
-### We are not backing up streaming files(Music files).
+7. **Server Identification**:
+   - Each storage server is uniquely identified by its naming server port and client port.
 
-### Every storage server is uniquely identified by naming server port and client port which are different.
+8. **Backup Limitations**:
+   - Backup does not work for write operations since acknowledgments are not sent to the naming server after a write.
 
-### Backup won't work in case of write(i.e, when writing to a file), since we are not sending Acknowledgement to Naming server after a write.
-
-### Time out message will be printed on client side if he doesnt get ACK within 5 sec after requesting but we are not terminating the request after 5 sec.
+9. **Timeouts**:
+   - A timeout message is printed on the client side if no acknowledgment is received within 5 seconds, but the request is not terminated.
